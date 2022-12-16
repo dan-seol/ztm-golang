@@ -19,6 +19,31 @@ package main
 
 import "fmt"
 
-func main() {
+func greet(name string) {
+	fmt.Println("Hello,", name)
+}
 
+func getSampleMessage() string {
+	return "Here is a random message!"
+}
+
+func addThree(one, two, three int) int {
+	return one + two + three
+}
+
+func getSampleNumber() int {
+	return 319
+}
+
+func getSampleNumbers() (int, int) {
+	return 115, 520
+}
+
+func main() {
+	greet("Aanika")
+	fmt.Println(getSampleMessage())
+	one := getSampleNumber()
+	two, three := getSampleNumbers()
+	result := addThree(one+one, two, three)
+	fmt.Println("result is", result)
 }
