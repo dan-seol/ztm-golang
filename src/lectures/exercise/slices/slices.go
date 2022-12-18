@@ -19,4 +19,10 @@ import "fmt"
 type Part string
 
 func main() {
+	assemblyLine := []Part{"Wheel", "Bodyframe", "Suspension"}
+	fmt.Println(assemblyLine)
+	assemblyLine = append(assemblyLine, "Trunk", "Engine")
+	fmt.Println(assemblyLine)
+	assemblyLine = assemblyLine[3:]
+	fmt.Println(assemblyLine)
 }

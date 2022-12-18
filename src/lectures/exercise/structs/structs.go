@@ -19,6 +19,34 @@ package main
 
 import "fmt"
 
-func main() {
+type Rectangle struct {
+	x1, x2, y1, y2 float64
+}
 
+func scaleShape(rectangle Rectangle, scale float64) Rectangle {
+	return Rectangle{
+		x1: rectangle.x1,
+		x2: (rectangle.x1 + scale*(rectangle.x2-rectangle.x1)),
+		y1: rectangle.y1,
+		y2: (rectangle.y1 + scale*(rectangle.y2-rectangle.y1))}
+}
+
+func getArea(rectangle Rectangle) float64 {
+	return (rectangle.x2 - rectangle.x1) * (rectangle.y2 - rectangle.y1)
+}
+
+func getPerimeter(rectangle Rectangle) float64 {
+	return 2*(rectangle.x2-rectangle.x1) + 2*(rectangle.y2-rectangle.y1)
+}
+
+func analyze(rectangle Rectangle) {
+	fmt.Println(rectangle)
+	fmt.Println("with area", getArea(rectangle))
+	fmt.Println("and with perimeter", getPerimeter(rectangle))
+}
+
+func main() {
+	rectangle := Rectangle{1.0, 3.0, 0.0, 2.0}
+	analyze(rectangle)
+	analyze(scaleShape(rectangle, 2))
 }

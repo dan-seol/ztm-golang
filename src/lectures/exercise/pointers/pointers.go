@@ -18,6 +18,34 @@ package main
 
 import "fmt"
 
-func main() {
+type Product struct {
+	name        string
+	securityTag bool
+}
 
+func activateTag(product *Product) {
+	product.securityTag = true
+}
+
+func deactivateTag(product *Product) {
+	product.securityTag = false
+}
+
+func checkout(productSlice []Product) {
+	for i := range productSlice {
+		deactivateTag(&productSlice[i])
+	}
+}
+
+func main() {
+	products := []Product{
+		{name: "Shovel", securityTag: true},
+		{name: "Frying Pan", securityTag: true},
+		{name: "Table", securityTag: true},
+		{name: "Hammer", securityTag: true}}
+	fmt.Println(products)
+	deactivateTag(&products[1])
+	fmt.Println(products)
+	checkout(products)
+	fmt.Println(products)
 }
