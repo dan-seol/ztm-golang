@@ -18,8 +18,47 @@
 
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
 
 func main() {
+	r := bufio.NewReader(os.Stdin)
 
+	countNonBlankLines := 0
+	countCommands := 0
+
+	for {
+		input, inputErr := r.ReadString('\n')
+		input = strings.TrimSpace(input)
+		if input == "" {
+			continue
+		}
+
+		if strings.ToLower(input) == "q" {
+			break
+		}
+
+		splitInput := strings.Split(input, " ")
+		for _, command := range splitInput {
+			switch strings.ToLower(command) {
+			case "hello", "hi":
+				fmt.Println("Hello, user")
+				countCommands++
+			case "bye":
+				fmt.Println("Bye, user")
+				countCommands++
+			}
+
+		}
+		countNonBlankLines++
+		if inputErr != nil {
+			fmt.Println("Error reading Stdin:", inputErr)
+		}
+	}
+	fmt.Println("Count of non-blank lines:", countNonBlankLines)
+	fmt.Println("Count of commands:", countCommands)
 }

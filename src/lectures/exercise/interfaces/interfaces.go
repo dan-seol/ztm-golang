@@ -21,6 +21,47 @@ package main
 
 import "fmt"
 
-func main() {
+type Vehicle interface {
+	// interface usually gets -er suffix
+	VehicleType() string
+}
 
+type Motorcycle string
+type Car string
+type Truck string
+
+func (m Motorcycle) VehicleType() string {
+	return "Motorcycle"
+}
+
+func (c Car) VehicleType() string {
+	return "Car"
+}
+
+func (t Truck) VehicleType() string {
+	return "Truck"
+}
+
+func allocateLift(v Vehicle) string {
+	if _, ok := v.(Motorcycle); ok {
+		return "small lift"
+	} else if _, ok := v.(Car); ok {
+		return "standard lift"
+	} else if _, ok := v.(Truck); ok {
+		return "large lift"
+	}
+	return ""
+}
+
+func allocateLifts(vehicles []Vehicle) {
+	for _, vehicle := range vehicles {
+		fmt.Printf("Vehicle --  %v \n", vehicle)
+		fmt.Println(vehicle.VehicleType())
+		fmt.Println(allocateLift(vehicle))
+	}
+}
+
+func main() {
+	vehicles := []Vehicle{Motorcycle("Kawasaki"), Car("Nissan"), Truck("Isuzu")}
+	allocateLifts(vehicles)
 }

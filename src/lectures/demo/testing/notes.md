@@ -18,3 +18,8 @@
 - `FailNow()` - mark the test as failed and abort the current test
     - `Fatalf(string)` - fail, abort, and add a message
 - `Logf()` - Equivalent to `Printf(..)` but only when the test fails
+
+# Test Tables
+- Usually one needs to test more than one set of input data
+- **Test tables** can be used to accomplish this
+    - think of them as parametrized testing
