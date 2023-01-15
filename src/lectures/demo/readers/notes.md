@@ -44,7 +44,7 @@ if err == io.EOF {
 - `bufio.Scanner` provides convenient functions
 ```
 //reading from standard input
-scanner := bufio.NewScammer(os.Stdin)
+scanner := bufio.NewScanner(os.Stdin)
 lines := make([]string, 0, 5)
 for scanner.Scan() {
     lines = append(lines, scanner.Text())

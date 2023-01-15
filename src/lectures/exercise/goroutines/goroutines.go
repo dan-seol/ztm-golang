@@ -28,12 +28,39 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"strconv"
 	"time"
 )
 
+func parseAndSum(filename string) int {
+	sum := 0
+	file, err := os.Open(filename)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fileScanner := bufio.NewScanner(file)
+	fileScanner.Split(bufio.ScanLines)
+
+	for fileScanner.Scan() {
+		val, err2 := strconv.Atoi(fileScanner.Text())
+		if err2 != nil {
+			fmt.Println(err2)
+		}
+		sum += val
+	}
+	defer file.Close()
+	return sum
+}
+
 func main() {
 	files := []string{"num1.txt", "num2.txt", "num3.txt", "num4.txt", "num5.txt"}
+	total := 0
+	for _, filename := range files {
+		go func(filename string) {
+			total += parseAndSum(filename)
+		}(filename)
+	}
+	time.Sleep(500 * time.Millisecond)
+	fmt.Println("The grand total is:", total)
 }
