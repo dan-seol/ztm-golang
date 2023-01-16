@@ -22,12 +22,12 @@ func main() {
 				wg.Done()
 			}()
 			duration := time.Duration(
-				rand.Intn(500) * int(time.Millisecond))
+				rand.Intn(50) * int(time.Millisecond))
 			fmt.Println("Waiting for", duration)
 			time.Sleep(duration)
 		}()
-		fmt.Println("waiting for goroutines to finish")
-		wg.Wait()
-		fmt.Println("done!")
 	}
+	fmt.Println("waiting for goroutines to finish")
+	wg.Wait()
+	fmt.Println("done!")
 }

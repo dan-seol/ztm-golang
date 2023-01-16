@@ -95,3 +95,56 @@ fmt.Println("sum = ", sum)
 - It is possible to wait for goroutines to finish with a `wait group` - a counting semaphore
     - Add 1 per goroutine to the wait group, then use `.Done()` in each goroutine to decrement the group counter
 - Using defer makes it simple to unlock mutexes and when working with wait groups
+
+# Concurrency Patterns
+- Channels and goroutines must be cleaned up at some point
+    - Failing to do so is a resource leak
+- Concurrency patterns offer ways to clean up goroutines
+    - Also help with managing data flow
+- Multiple patterns available based on the situation
+
+## Pipelines
+- are multiple stages of operations connected using channels
+    - at least 1 input channel and 1 output channel
+- use goroutines to manage the sending/receiving of values
+- multiple options for managing and combining stages
+- each stage of the pipeline depends on the previous stage
+
+## Fan-in
+- Multiple input channels, 1 output channel
+- Examples:
+    - Serializing requests to purchase an item
+    - Segmented processing of a single item
+
+## Close / Cancellation
+- Closing channel indicates end of data stream
+- Pipeline stage should close channel when work is done
+    - Ckeanup goroutines / no resource leaks / unblock
+
+## Request Quit
+- Dedicated "quit" channel
+- Stage listens on incoming "data" channel and "quit" channel
+    - if data/signal comes in on "quit" channel, goroutine shuts down
+- Can use one or multiple "quit" channels
+    - Multiple: must send enough signals for each stage to quit
+
+## Context
+- Similar to request quit
+- No need to manually manage channels
+- Calling a quit function cancels all operations using the Context
+- Can associate data with each Context
+    - IP addresses, session Id's, node identifiers, etc.
+
+## Generators
+- On-demand yielding of items
+- Items generated until bounded channel fills
+    - Reduced processing
+- Whenever items are read from the channel, new ones are calculated as needed
+
+## Recap - Concurrency Patterns
+- Concurrency patterns are used to manage goroutines
+- Pipelines are broken into "stages" wuth a goroutine for each stage
+    - Stages communicate with channels
+- Multiple ways to clean up pipelines:
+    - Close channels / send "quit" signal / use Context
+- Generators can be used to yield items on-demand

@@ -50,6 +50,7 @@ fmt.Println(first, second, third)
 
 ## Channel Selection
 - The `select` keyword lets you work with multiple -- potentially blocking -- channels
+- `select` vs `switch` - https://stackoverflow.com/questions/38821491/what-is-the-difference-between-switch-and-select-in-go
 - Send/Receive attemps are made regardless of blocking status
 
 ```
@@ -88,3 +89,10 @@ for {
     }
 }
 ```
+
+## Recap
+- Channels - bidirectional communication pipes
+    - send/write end - ... - receive/read end
+- The ends of a channel can be duplicated across goroutines
+- `select` can be used send/receive on multiple different channels
+- Buffered channels are non-blocking, unbuffered channels will block
