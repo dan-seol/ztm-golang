@@ -5,6 +5,8 @@ import (
 )
 
 func Setup(app *AppInit) {
+	// phase 4 - menus
+	SetupMenus(app)
 	// phase 1 - swatches
 	swatchesContainer := BuildSwatches(app)
 	// phase 2 - color picker
