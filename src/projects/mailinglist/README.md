@@ -22,3 +22,10 @@ protoc --go_out=. --go_opt=paths=source_relative \
   Proto/mail.proto
 ```
 
+# MailingList Microservice
+- JSON API server
+- gRPC API server / client
+- Protocol buffers
+- SQLite
+- Goroutines
+- CLI
