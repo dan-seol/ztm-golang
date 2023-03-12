@@ -67,7 +67,7 @@ func (s *MailServer) GetEmailBatch(ctx context.Context, req *pb.GetEmailBatchReq
 		return &pb.GetEmailBatchResponse{}, err
 	}
 
-	pbEntries := make([]*pb.EmailEntry, len(mdbEntries))
+	pbEntries := make([]*pb.EmailEntry, 0)
 
 	for i := 0; i < len(mdbEntries); i++ {
 		entry := mdbEntryToPbEntry(&mdbEntries[i])
