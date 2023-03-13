@@ -2,7 +2,10 @@ package keikodb
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"strings"
+	"sync"
 
 	"github.com/fatih/color"
 	"github.com/mattn/go-sqlite3"
@@ -44,6 +47,28 @@ func IncrementHitCount(db *sql.DB, name string) error {
 	_, err := db.Exec(`INSERT INTO
 		hits(name, count) VALUES(?, 1)
     ON CONFLICT(name) DO UPDATE SET count = count + 1`, name)
+
+	if err != nil {
+		display := color.New(color.FgRed).SprintFunc()
+		log.Printf("%s\n", display(err))
+		return err
+	}
+
+	return nil
+}
+
+func IncrementInBatch(db *sql.DB, mapping sync.Map) error {
+
+	queryValues := make([]string, 100000)
+
+	mapping.Range(func(k any, v any) bool {
+		queryValues = append(queryValues, fmt.Sprintf("('%v, %v)", k.(string), v.(int)))
+		return true
+	})
+
+	query := fmt.Sprintf("REPLACE INTO hits(name, count) VALUES%v", strings.Join(queryValues, ","))
+
+	_, err := db.Exec(query)
 
 	if err != nil {
 		display := color.New(color.FgRed).SprintFunc()

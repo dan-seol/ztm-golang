@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"sync"
 	"time"
 
 	_ "image/gif"
@@ -25,11 +26,18 @@ import (
 type WebpImage = bytes.Buffer
 
 // Scans the given directory and returns all entries.
-func getImageNames(path string) []os.DirEntry {
+func getImageNames(path string, cache map[string][]os.DirEntry) []os.DirEntry {
+	cachedEntries, ok := cache[path]
+	if ok {
+		return cachedEntries
+	}
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer func() {
+		cache[path] = entries
+	}()
 	return entries
 }
 
@@ -63,46 +71,54 @@ func imgToWebp(img image.Image) WebpImage {
 // Returns a random image from the `data` directory.
 // The first return value is the name of the image,
 // the second return value is the image data in WebP format.
-func getImage() (string, WebpImage) {
-	imgBase := "data"
-
+func getImage(imgBase string, imageNameCache map[string][]os.DirEntry, imageCache map[string]WebpImage) (string, WebpImage) {
 	// find all the names of the images
-	imgName := getImageNames(imgBase)
+	imgNames := getImageNames(imgBase, imageNameCache)
 	// pick an index at random
-	index := rand.Intn(len(imgName))
+	index := rand.Intn(len(imgNames))
 
 	// get the randomly picked image
-	imgEntry := imgName[index]
+	imgEntry := imgNames[index]
+	imgName := imgEntry.Name()
 	// construct a path to the image in the `data` directory
 	imgPath := path.Join(imgBase, imgEntry.Name())
+	cachedWebpImage, ok := imageCache[imgPath]
+	if ok {
+		return imgName, cachedWebpImage
+	}
 	// load the image into memory
-	rawImg := loadImg(imgPath)
+	//rawImg :=
 
 	// parse into an image.Image
-	parsedImg := parseImg(rawImg)
+	//parsedImg :=
 	// convert to WebP
-	webpImg := imgToWebp(parsedImg)
-
-	return imgEntry.Name(), webpImg
+	webpImg := imgToWebp(parseImg(loadImg(imgPath)))
+	defer func() {
+		imageCache[imgPath] = webpImg
+	}()
+	return imgName, webpImg
 }
 
 // handler for a GET request on `/`
-func handleRoot(db *sql.DB) http.Handler {
+func handleRoot(db *sql.DB, imageNameCache map[string][]os.DirEntry, imageCache map[string]WebpImage, totalRequest *int, counterMap sync.Map) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		if req.Method != "GET" {
 			return
 		}
 
 		// get a random image
-		name, img := getImage()
-
-		// increment the hit counter for this image
-		keikodb.IncrementHitCount(db, name)
-
+		name, img := getImage("data", imageNameCache, imageCache)
+		// defer keikodb.IncrementHitCount(db, name)
 		// serve it
-		log.Println("Serve", name)
 		w.Write(img.Bytes())
-
+		defer func() {
+			if req.Method != "GET" {
+				return
+			}
+			//log.Println("Served", name)
+			valueToStore, _ := counterMap.LoadOrStore(name, 0)
+			counterMap.Store(name, valueToStore.(int)+1)
+		}()
 		return
 	})
 }
@@ -119,12 +135,25 @@ func main() {
 	// try to create a new database
 	keikodb.MakeNew(db)
 
+	// set caches
+	// imageNameCache map[string][]os.DirEntry, rawImageCache map[string][]byte
+	imageNameCache := make(map[string][]os.DirEntry)
+	imageCache := make(map[string]WebpImage)
+	var counterMap sync.Map
+	var totalRequest int
+	// set channel
+	// ch := make(chan string, 50)
 	// serve on `/`
-	http.Handle("/", handleRoot(db))
+	http.Handle("/", handleRoot(db, imageNameCache, imageCache, &totalRequest, counterMap))
+	// increment the hit counter for this image
 
 	log.Println("Listening on localhost:8099")
 	err = http.ListenAndServe("localhost:8099", nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
+	defer func() {
+
+		keikodb.IncrementInBatch(db, counterMap)
+	}()
 }

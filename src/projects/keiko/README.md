@@ -52,6 +52,39 @@ spike     ✓ [======================================] 0000/5000 VUs  10s
      vus_max........................: 5000    min=5000      max=5000
 ```
 
+```
+dan-seol@danseol-Serval-WS:~/Projects/Learning/ztm-golang/src/projects/keiko$ k6 run quickbench.js
+
+          /\      |‾‾| /‾‾/   /‾‾/   
+     /\  /  \     |  |/  /   /  /    
+    /  \/    \    |     (   /   ‾‾\  
+   /          \   |  |\  \ |  (‾)  | 
+  / __________ \  |__| \__\ \_____/ .io
+
+  execution: local
+     script: quickbench.js
+     output: -
+
+  scenarios: (100.00%) 1 scenario, 500 max VUs, 5s max duration (incl. graceful stop):
+           * quick: Up to 500 looping VUs for 5s over 1 stages (gracefulRampDown: 0s)
+
+
+     data_received..................: 4.8 MB 962 kB/s     data_sent......................: 80 kB  16 kB/s     http_req_blocked...............: avg=579.1µs  min=57.76µs med=143.86µs max=56.49ms  p(90)=232.36µs p(95)=319.88µs
+     http_req_connecting............: avg=528.93µs min=33.67µs med=90.81µs  max=56.44ms  p(90)=162.78µs p(95)=250.59µs
+   ✗ http_req_duration..............: avg=1.06s    min=7.15ms  med=767.97ms max=4.3s     p(90)=2.58s    p(95)=3.05s   
+       { expected_response:true }...: avg=1.06s    min=7.15ms  med=767.97ms max=4.3s     p(90)=2.58s    p(95)=3.05s   
+   ✓ http_req_failed................: 0.00%  ✓ 0         ✗ 332  
+     http_req_receiving.............: avg=560.57µs min=38.69µs med=115.19µs max=30.26ms  p(90)=236.66µs p(95)=604.22µs
+     http_req_sending...............: avg=51.7µs   min=19.53µs med=48.74µs  max=192.73µs p(90)=75.2µs   p(95)=87.15µs 
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s       max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=1.06s    min=7.06ms  med=767.78ms max=4.3s     p(90)=2.58s    p(95)=3.05s   
+     http_reqs......................: 332    66.023991/s
+     iteration_duration.............: avg=1.06s    min=7.4ms   med=768.28ms max=4.3s     p(90)=2.58s    p(95)=3.05s   
+     iterations.....................: 332    66.023991/s
+     vus............................: 495    min=96      max=495
+     vus_max........................: 500    min=500     max=500
+```
+
 Keiko Corp is interested in:
 
 * `http_req_duration`: how long it takes to serve requests
@@ -71,4 +104,11 @@ Since the program has multiple functions that are run on each request, try modif
 Once some low-performing functions have been identified, write code to optimize them. Some modifications that can help performance:
 * Use goroutines to process multiple things at a time
 * Cache results of functions that run slowly
-* Skip unneeded operations
+* Skip unneeded 
+```
+- enumerating the filesystem is very slow
+- loading data from disk is very slow
+- converting between file formats can be slow, but not always
+- databases are fast, but SQLite uses exclusive locks when writing (meaning whenever there is a write, nothing can be read from the database)
+
+```
